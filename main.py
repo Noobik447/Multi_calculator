@@ -90,7 +90,6 @@ class MyWindow(QtWidgets.QMainWindow):
         wid.setLayout(self.vbox)
         
         self.mode = "calc"
-        print(self.mode)
     
     #Перевод в системы счисления
     def code(self):
@@ -100,7 +99,6 @@ class MyWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(wid)
         
         self.lb = QtWidgets.QLabel("0")
-        #self.lb.setAlignment(QtCore.Qt.AlignTop)
         self.le = QtWidgets.QLineEdit()
         self.vbox.addWidget(self.lb)
         self.vbox.addWidget(self.le)
@@ -121,7 +119,6 @@ class MyWindow(QtWidgets.QMainWindow):
         wid.setLayout(self.vbox)
         
         self.mode = "code"
-        print(self.mode)
         
     def add(self):
         res = float(self.le1.text()) + float(self.le2.text())
