@@ -7,7 +7,7 @@ class MyWindow(QtWidgets.QMainWindow):
         super().__init__(parent)
         self.setWindowTitle("Калькулятор")
         self.setWindowIcon(QtGui.QIcon("calc.png"))
-        self.settings = QtCore.QSettings("Настройки", "Расположение")
+        self.settings = QtCore.QSettings("Настройки", "Мульти_калькулятор")
         
         self.calc()
         
@@ -15,6 +15,12 @@ class MyWindow(QtWidgets.QMainWindow):
             self.setGeometry(self.settings.value("Окно/Местоположение"))
         else:
             self.resize(200, 100)
+            
+        if self.settings.contains("Режимы/Режим"):
+            if self.settings.value("Режимы/Режим") == "calc":
+                self.calc()
+            elif self.settings.value("Режимы/Режим") == "code":
+                self.code()
         
         self._createActions()
         self._createMenuBar()
@@ -32,12 +38,13 @@ class MyWindow(QtWidgets.QMainWindow):
         self.codeAction = QtWidgets.QAction("Системы счисления", self)
         self.codeAction.triggered.connect(self.code)
         
-    def CalcAction(self):
-        print(123)
-        
     def closeEvent(self, event):
         self.settings.beginGroup("Окно")
         self.settings.setValue("Местоположение", self.geometry())
+        self.settings.endGroup()
+        
+        self.settings.beginGroup("Режимы")
+        self.settings.setValue("Режим", self.mode)
         self.settings.endGroup()
     
     #калькулятор
@@ -81,6 +88,9 @@ class MyWindow(QtWidgets.QMainWindow):
         
         self.vbox.addWidget(self.btn7)
         wid.setLayout(self.vbox)
+        
+        self.mode = "calc"
+        print(self.mode)
     
     #Перевод в системы счисления
     def code(self):
@@ -109,6 +119,9 @@ class MyWindow(QtWidgets.QMainWindow):
         self.vbox.addLayout(self.grid)
         self.vbox.addWidget(self.btn3)
         wid.setLayout(self.vbox)
+        
+        self.mode = "code"
+        print(self.mode)
         
     def add(self):
         res = float(self.le1.text()) + float(self.le2.text())
