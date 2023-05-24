@@ -39,7 +39,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.settings.beginGroup("Окно")
         self.settings.setValue("Местоположение", self.geometry())
         self.settings.endGroup()
-        
+    
+    #калькулятор
     def calc(self):
         wid = QtWidgets.QWidget(self)
         self.setCentralWidget(wid)
@@ -81,6 +82,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.vbox.addWidget(self.btn7)
         wid.setLayout(self.vbox)
     
+    #Перевод в системы счисления
     def code(self):
         self.vbox = QtWidgets.QVBoxLayout()
         self.grid = QtWidgets.QGridLayout()
