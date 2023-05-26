@@ -5,11 +5,8 @@ import random
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Калькулятор")
         self.setWindowIcon(QtGui.QIcon("calc.png"))
         self.settings = QtCore.QSettings("Настройки", "Мульти_калькулятор")
-        
-        self.calc()
         
         if self.settings.contains("Окно/Местоположение"):
             self.setGeometry(self.settings.value("Окно/Местоположение"))
@@ -21,6 +18,8 @@ class MyWindow(QtWidgets.QMainWindow):
                 self.calc()
             elif self.settings.value("Режимы/Режим") == "code":
                 self.code()
+        else:
+            self.calc()
         
         self._createActions()
         self._createMenuBar()
@@ -49,6 +48,7 @@ class MyWindow(QtWidgets.QMainWindow):
     
     #калькулятор
     def calc(self):
+        self.setWindowTitle("Калькулятор")
         wid = QtWidgets.QWidget(self)
         self.setCentralWidget(wid)
         
@@ -68,7 +68,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.btn4 = QtWidgets.QPushButton("/")
         self.btn5 = QtWidgets.QPushButton("Степень")
         self.btn6 = QtWidgets.QPushButton("Корень")
-        self.btn7 = QtWidgets.QPushButton("Рандомное число")
+        self.btn7 = QtWidgets.QPushButton("Факториал")
+        self.btn8 = QtWidgets.QPushButton("Рандомное число")
         
         self.btn1.clicked.connect(self.add)
         self.btn2.clicked.connect(self.sub)
@@ -76,7 +77,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.btn4.clicked.connect(self.div)
         self.btn5.clicked.connect(self.pow)
         self.btn6.clicked.connect(self.sqrt)
-        self.btn7.clicked.connect(self.rand)
+        self.btn7.clicked.connect(self.fact)
+        self.btn8.clicked.connect(self.rand)
         
         self.grid.addWidget(self.btn1, 0, 0)
         self.grid.addWidget(self.btn2, 0, 1)
@@ -84,15 +86,17 @@ class MyWindow(QtWidgets.QMainWindow):
         self.grid.addWidget(self.btn4, 1, 1)
         self.grid.addWidget(self.btn5, 2, 0)
         self.grid.addWidget(self.btn6, 2, 1)
+        self.grid.addWidget(self.btn7, 3, 0)
+        self.grid.addWidget(self.btn8, 3, 1)
         self.vbox.addLayout(self.grid)
         
-        self.vbox.addWidget(self.btn7)
         wid.setLayout(self.vbox)
         
         self.mode = "calc"
     
-    #Перевод в системы счисления
+    #Перевод в системы счисления из десятичной
     def code(self):
+        self.setWindowTitle("Перевод из десятичной")
         self.vbox = QtWidgets.QVBoxLayout()
         self.grid = QtWidgets.QGridLayout()
         wid = QtWidgets.QWidget(self)
@@ -145,6 +149,10 @@ class MyWindow(QtWidgets.QMainWindow):
     
     def sqrt(self):
         res = math.sqrt(float(self.le1.text()))
+        self.lb.setText(str(res))
+    
+    def fact(self):
+        res = math.factorial(int(self.le1.text()))
         self.lb.setText(str(res))
     
     def rand(self):
