@@ -104,24 +104,59 @@ class MyWindow(QtWidgets.QMainWindow):
         
         self.lb = QtWidgets.QLabel("0")
         self.le = QtWidgets.QLineEdit()
+        self.btnn = QtWidgets.QPushButton("Перевести")
+        self.btnn.clicked.connect(self.translate)
+
+        self.rb = QtWidgets.QRadioButton("Из двоичной")
+        self.rb2 = QtWidgets.QRadioButton("Из восьмеричной")
+        self.rb3 = QtWidgets.QRadioButton("Из десятичной")
+        self.rb4 = QtWidgets.QRadioButton("Из шестнадцатеричной")
+
+        self.button_group = QtWidgets.QButtonGroup()
+        self.button_group.addButton(self.rb)
+        self.button_group.addButton(self.rb2)
+        self.button_group.addButton(self.rb3)
+        self.button_group.addButton(self.rb4)
+
+        self.rbb = QtWidgets.QRadioButton("В двоичную")
+        self.rbb2 = QtWidgets.QRadioButton("В восьмеричную")
+        self.rbb3 = QtWidgets.QRadioButton("В десятичную")
+        self.rbb4 = QtWidgets.QRadioButton("В шестнадцатеричную")
+
         self.vbox.addWidget(self.lb)
         self.vbox.addWidget(self.le)
+        self.grid.addWidget(self.rb, 0, 0)
+        self.grid.addWidget(self.rb2, 1, 0)
+        self.grid.addWidget(self.rb3, 2, 0)
+        self.grid.addWidget(self.rb4, 3, 0)
         
-        self.btn1 = QtWidgets.QPushButton("Двоичная")
-        self.btn2 = QtWidgets.QPushButton("Восьмеричная")
-        self.btn3 = QtWidgets.QPushButton("Шестнадцатеричная")
-        
-        self.btn1.clicked.connect(self.bin)
-        self.btn2.clicked.connect(self.oct)
-        self.btn3.clicked.connect(self.hex)
-        
-        self.grid.addWidget(self.btn1, 0, 0)
-        self.grid.addWidget(self.btn2, 0, 1)
-        
+        self.grid.addWidget(self.rbb, 0, 1)
+        self.grid.addWidget(self.rbb2, 1, 1)
+        self.grid.addWidget(self.rbb3, 2, 1)
+        self.grid.addWidget(self.rbb4, 3, 1)
+
         self.vbox.addLayout(self.grid)
-        self.vbox.addWidget(self.btn3)
+        self.vbox.addWidget(self.btnn)
         wid.setLayout(self.vbox)
         
+        if self.rb.isChecked:
+            self.inn = 2
+        elif self.rb2.isChecked:
+            self.inn = 8
+        elif self.rb3.isChecked:
+            self.inn = 10
+        elif self.rb4.isChecked:
+            self.inn = 16
+
+        if self.rbb.isChecked:
+            self.out = 2
+        elif self.rbb2.isChecked:
+            self.out = 8
+        elif self.rbb3.isChecked:
+            self.out = 10
+        elif self.rbb4.isChecked:
+            self.out = 16
+
         self.mode = "code"
         
     def add(self):
@@ -159,17 +194,39 @@ class MyWindow(QtWidgets.QMainWindow):
         res = random.randint(int(self.le1.text()), int(self.le2.text()))
         self.lb.setText(str(res))
     
-    def bin(self):
-        res = bin(int(self.le.text()))
-        self.lb.setText(str(res))
+    def trans(self, num, base):
+        alpha = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        b = alpha[num % base] 
+        while num >= base :
+            num = num // base
+            b += alpha[num % base] 
+        return b[::-1] 
+
+    def translate(self):
+        if self.rb.isChecked():
+            inn = 2
+        elif self.rb2.isChecked():
+            inn = 8
+        elif self.rb3.isChecked():
+            inn = 10
+        elif self.rb4.isChecked():
+            inn = 16
+
+        if self.rbb.isChecked():
+            out = 2
+        elif self.rbb2.isChecked():
+            out = 8
+        elif self.rbb3.isChecked():
+            out = 10
+        elif self.rbb4.isChecked():
+            out = 16
         
-    def oct(self):
-        res = oct(int(self.le.text()))
-        self.lb.setText(str(res))
-    
-    def hex(self):
-        res = hex(int(self.le.text()))
-        self.lb.setText(str(res))
+        number = self.le.text()
+        a = int(number, inn)
+        a = self.trans(a, out)
+
+        self.lb.setText(str(a))
+
 
 if __name__ == "__main__":
     import sys
