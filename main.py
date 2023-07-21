@@ -18,6 +18,8 @@ class MyWindow(QtWidgets.QMainWindow):
                 self.calc()
             elif self.settings.value("Режимы/Режим") == "code":
                 self.code()
+            elif self.settings.value("Режимы/Режим") == "temp":
+                self.temp()
         else:
             self.calc()
         
@@ -30,12 +32,15 @@ class MyWindow(QtWidgets.QMainWindow):
         menuBar.addMenu(calcMenu)
         calcMenu.addAction(self.calcAction)
         calcMenu.addAction(self.codeAction)
+        calcMenu.addAction(self.tempAction)
         
     def _createActions(self):
         self.calcAction = QtWidgets.QAction("Калькулятор", self)
         self.calcAction.triggered.connect(self.calc)
         self.codeAction = QtWidgets.QAction("Системы счисления", self)
         self.codeAction.triggered.connect(self.code)
+        self.tempAction = QtWidgets.QAction("Температура", self)
+        self.tempAction.triggered.connect(self.temp)
         
     def closeEvent(self, event):
         self.settings.beginGroup("Окно")
@@ -96,7 +101,7 @@ class MyWindow(QtWidgets.QMainWindow):
     
     #Перевод в системы счисления из десятичной
     def code(self):
-        self.setWindowTitle("Перевод из десятичной")
+        self.setWindowTitle("Перевод в системы счисления")
         self.vbox = QtWidgets.QVBoxLayout()
         self.grid = QtWidgets.QGridLayout()
         wid = QtWidgets.QWidget(self)
@@ -158,6 +163,47 @@ class MyWindow(QtWidgets.QMainWindow):
             self.out = 16
 
         self.mode = "code"
+    
+    def temp(self):
+        self.setWindowTitle("Температура")
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.grid = QtWidgets.QGridLayout()
+        wid = QtWidgets.QWidget(self)
+        self.setCentralWidget(wid)
+        
+        self.lb = QtWidgets.QLabel("0")
+        self.le = QtWidgets.QLineEdit()
+        self.btn = QtWidgets.QPushButton("Перевести")
+        self.btn.clicked.connect(self.translate_temp)
+
+        self.rb = QtWidgets.QRadioButton("Из Цельсия")
+        self.rb2 = QtWidgets.QRadioButton("Из Фарангейта")
+        self.rb3 = QtWidgets.QRadioButton("Из Кельвинов")
+
+        self.button_group = QtWidgets.QButtonGroup()
+        self.button_group.addButton(self.rb)
+        self.button_group.addButton(self.rb2)
+        self.button_group.addButton(self.rb3)
+
+        self.rbb = QtWidgets.QRadioButton("В Цельсии")
+        self.rbb2 = QtWidgets.QRadioButton("В Фарангейты")
+        self.rbb3 = QtWidgets.QRadioButton("В Кельвины")
+
+        self.vbox.addWidget(self.lb)
+        self.vbox.addWidget(self.le)
+        self.grid.addWidget(self.rb, 0, 0)
+        self.grid.addWidget(self.rb2, 1, 0)
+        self.grid.addWidget(self.rb3, 2, 0)
+        
+        self.grid.addWidget(self.rbb, 0, 1)
+        self.grid.addWidget(self.rbb2, 1, 1)
+        self.grid.addWidget(self.rbb3, 2, 1)
+
+        self.vbox.addLayout(self.grid)
+        self.vbox.addWidget(self.btn)
+        wid.setLayout(self.vbox)
+
+        self.mode = "temp"
         
     def add(self):
         res = float(self.le1.text()) + float(self.le2.text())
@@ -203,21 +249,29 @@ class MyWindow(QtWidgets.QMainWindow):
         return b[::-1] 
 
     def translate(self):
+        #Двоичная
         if self.rb.isChecked():
             inn = 2
+        #Восьмеричная
         elif self.rb2.isChecked():
             inn = 8
+        #Десятичная
         elif self.rb3.isChecked():
             inn = 10
+        #Шестнадцатеричная
         elif self.rb4.isChecked():
             inn = 16
 
+        #Двоичная
         if self.rbb.isChecked():
             out = 2
+        #Восьмеричная
         elif self.rbb2.isChecked():
             out = 8
+        #Десятичная
         elif self.rbb3.isChecked():
             out = 10
+        #Шестнадцатеричная
         elif self.rbb4.isChecked():
             out = 16
         
@@ -226,6 +280,74 @@ class MyWindow(QtWidgets.QMainWindow):
         a = self.trans(a, out)
 
         self.lb.setText(str(a))
+
+    def translate_temp(self):
+        #Цельсии
+        if self.rb.isChecked():
+            inn = 1
+        #Фарангейты
+        elif self.rb2.isChecked():
+            inn = 2
+        #Кельвины
+        elif self.rb3.isChecked():
+            inn = 3
+
+        #Цельсии
+        if self.rbb.isChecked():
+            out = 1
+        #Фарангейты
+        elif self.rbb2.isChecked():
+            out = 2
+        #Кельвины
+        elif self.rbb3.isChecked():
+            out = 3
+
+        temp = self.le.text()
+
+        if inn == 1:
+            if out == 2:
+                converted_temp = self.celsius_to_fahrenheit(temp)
+            elif out == 3:
+                converted_temp = self.celsius_to_kelvin(temp)
+        elif inn == 2:
+            if out == 1:
+                converted_temp = self.fahrenheit_to_celsius(temp)
+            elif out == 3:
+                converted_temp = self.fahrenheit_to_kelvin(temp)
+        elif inn == 3:
+            if out == 1:
+                converted_temp = self.kelvin_to_celsius(temp)
+            elif out == 2:
+                converted_temp = self.kelvin_to_fahrenheit(temp)  
+
+        if inn == out:
+            converted_temp = self.le.text()
+
+        self.lb.setText(str(converted_temp))
+
+    def celsius_to_fahrenheit(self, celsius):
+        fahrenheit = (float(celsius) * 9/5) + 32
+        return fahrenheit
+
+    def celsius_to_kelvin(self, celsius):
+        kelvin = float(celsius) + 273.15
+        return kelvin
+
+    def fahrenheit_to_celsius(self, fahrenheit):
+        celsius = (float(fahrenheit) - 32) * 5/9
+        return celsius
+
+    def fahrenheit_to_kelvin(self, fahrenheit):
+        kelvin = (float(fahrenheit) - 32) * 5/9 + 273.15
+        return kelvin
+
+    def kelvin_to_celsius(self, kelvin):
+        celsius = float(kelvin) - 273.15
+        return celsius
+
+    def kelvin_to_fahrenheit(self, kelvin):
+        fahrenheit = (float(kelvin) - 273.15) * 9/5 + 32
+        return fahrenheit
 
 
 if __name__ == "__main__":
