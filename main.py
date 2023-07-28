@@ -1,11 +1,10 @@
-from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore
 import math
 import random
 
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowIcon(QtGui.QIcon("calc.png"))
         self.settings = QtCore.QSettings("Настройки", "Мульти_калькулятор")
         
         if self.settings.contains("Окно/Местоположение"):
@@ -20,6 +19,8 @@ class MyWindow(QtWidgets.QMainWindow):
                 self.code()
             elif self.settings.value("Режимы/Режим") == "temp":
                 self.temp()
+            elif self.settings.value("Режимы/Режим") == "length":
+                self.length()
         else:
             self.calc()
         
@@ -33,6 +34,7 @@ class MyWindow(QtWidgets.QMainWindow):
         calcMenu.addAction(self.calcAction)
         calcMenu.addAction(self.codeAction)
         calcMenu.addAction(self.tempAction)
+        calcMenu.addAction(self.lengthAction)
         
     def _createActions(self):
         self.calcAction = QtWidgets.QAction("Калькулятор", self)
@@ -41,6 +43,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.codeAction.triggered.connect(self.code)
         self.tempAction = QtWidgets.QAction("Температура", self)
         self.tempAction.triggered.connect(self.temp)
+        self.lengthAction = QtWidgets.QAction("Длина", self)
+        self.lengthAction.triggered.connect(self.length)
         
     def closeEvent(self, event):
         self.settings.beginGroup("Окно")
@@ -204,6 +208,53 @@ class MyWindow(QtWidgets.QMainWindow):
         wid.setLayout(self.vbox)
 
         self.mode = "temp"
+
+    def length(self):
+        self.setWindowTitle("Длина")
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.grid = QtWidgets.QGridLayout()
+        wid = QtWidgets.QWidget(self)
+        self.setCentralWidget(wid)
+        
+        self.lb = QtWidgets.QLabel("0")
+        self.le = QtWidgets.QLineEdit()
+        self.btn = QtWidgets.QPushButton("Перевести")
+        self.btn.clicked.connect(self.translate_length)
+
+        self.rb = QtWidgets.QRadioButton("Из миллиметров")
+        self.rb2 = QtWidgets.QRadioButton("Из сантиметров")
+        self.rb3 = QtWidgets.QRadioButton("Из метров")
+        self.rb4 = QtWidgets.QRadioButton("Из километров")
+
+        self.button_group = QtWidgets.QButtonGroup()
+        self.button_group.addButton(self.rb)
+        self.button_group.addButton(self.rb2)
+        self.button_group.addButton(self.rb3)
+        self.button_group.addButton(self.rb4)
+
+        self.rbb = QtWidgets.QRadioButton("В миллиметры")
+        self.rbb2 = QtWidgets.QRadioButton("В сантиметры")
+        self.rbb3 = QtWidgets.QRadioButton("В метры")
+        self.rbb4 = QtWidgets.QRadioButton("В километры")
+
+        self.vbox.addWidget(self.lb)
+        self.vbox.addWidget(self.le)
+
+        self.grid.addWidget(self.rb, 0, 0)
+        self.grid.addWidget(self.rb2, 1, 0)
+        self.grid.addWidget(self.rb3, 2, 0)
+        self.grid.addWidget(self.rb4, 3, 0)
+
+        self.grid.addWidget(self.rbb, 0, 1)
+        self.grid.addWidget(self.rbb2, 1, 1)
+        self.grid.addWidget(self.rbb3, 2, 1)
+        self.grid.addWidget(self.rbb4, 3, 1)
+        
+        self.vbox.addLayout(self.grid)
+        self.vbox.addWidget(self.btn)
+        wid.setLayout(self.vbox)
+
+        self.mode = "length"
         
     def add(self):
         res = float(self.le1.text()) + float(self.le2.text())
@@ -349,6 +400,126 @@ class MyWindow(QtWidgets.QMainWindow):
         fahrenheit = (float(kelvin) - 273.15) * 9/5 + 32
         return fahrenheit
 
+    def translate_length(self):
+        #Миллиметры
+        if self.rb.isChecked():
+            inn = 1
+        #Сантиметры
+        elif self.rb2.isChecked():
+            inn = 2
+        #Метры
+        elif self.rb3.isChecked():
+            inn = 3
+        elif self.rb4.isChecked():
+            inn = 4
+
+        #Милиметры
+        if self.rbb.isChecked():
+            out = 1
+        #Сантиметры
+        elif self.rbb2.isChecked():
+            out = 2
+        #Метры
+        elif self.rbb3.isChecked():
+            out = 3
+        #Километры
+        elif self.rbb4.isChecked():
+            out = 4
+
+        if inn == 1:
+            if out == 2:
+                converted_length = self.mil_to_san(self.le.text())
+            elif out == 3:
+                converted_length = self.mil_to_metr(self.le.text())
+            elif out == 4:
+                converted_length = self.mil_to_kil(self.le.text())
+        elif inn == 2:
+            if out == 1:
+                converted_length = self.san_to_mil(self.le.text())
+            elif out == 3:
+                converted_length = self.san_to_metr(self.le.text())
+            elif out == 4:
+                converted_length = self.san_to_kil(self.le.text())
+        elif inn == 3:
+            if out == 1:
+                converted_length = self.metr_to_mil(self.le.text())
+            elif out == 2:
+                converted_length = self.metr_to_san(self.le.text())
+            elif out == 4:
+                converted_length = self.metr_to_kil(self.le.text())
+        elif inn == 4:
+            if out == 1:
+                converted_length = self.kil_to_mil(self.le.text())
+            elif out == 2:
+                converted_length = self.kil_to_san(self.le.text())
+            elif out == 3:
+                converted_length = self.kil_to_metr(self.le.text())
+
+        if inn == out:
+            converted_length = self.le.text()
+
+        self.lb.setText(str(converted_length))
+
+    #миллиметры в сантиметры   
+    def mil_to_san(self, mil):
+        san = float(mil) / 10
+        return san
+    
+    #миллиметры в метры
+    def mil_to_metr(self, mil):
+        metr = float(mil) / 1000
+        return metr
+    
+    #миллиметры в километры
+    def mil_to_kil(self, mil):
+        kil = float(mil) / 1000000
+        return kil
+    
+    #Сантиметры в миллиметры
+    def san_to_mil(self, san):
+        mil = float(san) * 10
+        return mil
+    
+    #Сантиметры в метры
+    def san_to_metr(self, san):
+        metr = float(san) / 100
+        return metr
+    
+    #Сантиметры в километры
+    def san_to_kil(self, san):
+        kil = float(san) / 100000
+        return kil
+
+    #Метры в миллиметры
+    def metr_to_mil(self, metr):
+        mil = float(metr) / 1000
+        return mil
+    
+    #Метры в сантиметры
+    def metr_to_san(self, metr):
+        san = float(metr) * 100
+        return san
+    
+    #Метры в километры
+    def metr_to_kil(self, metr):
+        kil = float(metr) / 1000
+        return kil
+
+    #Километры в миллиметры
+    def kil_to_mil(self, kil):
+        mil = float(kil) * 1000000
+        return mil
+    
+    #Километры в сантиметры
+    def kil_to_san(self, kil):
+        san = float(kil) * 100000
+        return san
+    
+    #Километры в метры
+    def kil_to_metr(self, kil):
+        metr = float(kil) * 1000
+        return metr
+
 
 if __name__ == "__main__":
     import sys
@@ -357,4 +528,3 @@ if __name__ == "__main__":
     window = MyWindow()
     window.show()
     sys.exit(app.exec_())
-    
