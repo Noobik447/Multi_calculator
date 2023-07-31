@@ -21,6 +21,8 @@ class MyWindow(QtWidgets.QMainWindow):
                 self.temp()
             elif self.settings.value("Режимы/Режим") == "length":
                 self.length()
+            elif self.settings.value("Режимы/Режим") == "weight":
+                self.weight()
         else:
             self.calc()
         
@@ -35,6 +37,7 @@ class MyWindow(QtWidgets.QMainWindow):
         calcMenu.addAction(self.codeAction)
         calcMenu.addAction(self.tempAction)
         calcMenu.addAction(self.lengthAction)
+        calcMenu.addAction(self.weightAction)
         
     def _createActions(self):
         self.calcAction = QtWidgets.QAction("Калькулятор", self)
@@ -45,6 +48,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.tempAction.triggered.connect(self.temp)
         self.lengthAction = QtWidgets.QAction("Длина", self)
         self.lengthAction.triggered.connect(self.length)
+        self.weightAction = QtWidgets.QAction("Масса", self)
+        self.weightAction.triggered.connect(self.weight)
         
     def closeEvent(self, event):
         self.settings.beginGroup("Окно")
@@ -255,6 +260,48 @@ class MyWindow(QtWidgets.QMainWindow):
         wid.setLayout(self.vbox)
 
         self.mode = "length"
+
+    def weight(self):
+        self.setWindowTitle("Масса")
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.grid = QtWidgets.QGridLayout()
+        wid = QtWidgets.QWidget(self)
+        self.setCentralWidget(wid)
+        
+        self.lb = QtWidgets.QLabel("0")
+        self.le = QtWidgets.QLineEdit()
+        self.btn = QtWidgets.QPushButton("Перевести")
+        self.btn.clicked.connect(self.translate_weight)
+
+        self.rb = QtWidgets.QRadioButton("Из миллиграмм")
+        self.rb2 = QtWidgets.QRadioButton("Из грамм")
+        self.rb3 = QtWidgets.QRadioButton("Из килограмм")
+
+        self.button_group = QtWidgets.QButtonGroup()
+        self.button_group.addButton(self.rb)
+        self.button_group.addButton(self.rb2)
+        self.button_group.addButton(self.rb3)
+
+        self.rbb = QtWidgets.QRadioButton("В миллиграммы")
+        self.rbb2 = QtWidgets.QRadioButton("В граммы")
+        self.rbb3 = QtWidgets.QRadioButton("В килограммы")
+
+        self.vbox.addWidget(self.lb)
+        self.vbox.addWidget(self.le)
+
+        self.grid.addWidget(self.rb, 0, 0)
+        self.grid.addWidget(self.rb2, 1, 0)
+        self.grid.addWidget(self.rb3, 2, 0)
+
+        self.grid.addWidget(self.rbb, 0, 1)
+        self.grid.addWidget(self.rbb2, 1, 1)
+        self.grid.addWidget(self.rbb3, 2, 1)
+
+        self.vbox.addLayout(self.grid)
+        self.vbox.addWidget(self.btn)
+        wid.setLayout(self.vbox)
+
+        self.mode = "weight"
         
     def add(self):
         res = float(self.le1.text()) + float(self.le2.text())
@@ -410,6 +457,7 @@ class MyWindow(QtWidgets.QMainWindow):
         #Метры
         elif self.rb3.isChecked():
             inn = 3
+        #Километры
         elif self.rb4.isChecked():
             inn = 4
 
@@ -492,7 +540,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
     #Метры в миллиметры
     def metr_to_mil(self, metr):
-        mil = float(metr) / 1000
+        mil = float(metr) * 1000
         return mil
     
     #Метры в сантиметры
@@ -519,6 +567,78 @@ class MyWindow(QtWidgets.QMainWindow):
     def kil_to_metr(self, kil):
         metr = float(kil) * 1000
         return metr
+
+    def translate_weight(self):
+        #Миллиграмм
+        if self.rb.isChecked():
+            inn = 1
+        #Грамм
+        elif self.rb2.isChecked():
+            inn = 2
+        #Килограмм
+        elif self.rb3.isChecked():
+            inn = 3
+
+        #Миллиграмм
+        if self.rbb.isChecked():
+            out = 1
+        #Грамм
+        elif self.rbb2.isChecked():
+            out = 2
+        #Килограмм
+        elif self.rbb3.isChecked():
+            out = 3
+
+        if inn == 1:
+            if out == 2:
+                converted_weight = self.milligram_to_gram(self.le.text())
+            elif out == 3:
+                converted_weight = self.milligram_to_kilogram(self.le.text())
+        elif inn == 2:
+            if out == 1:
+                converted_weight = self.gram_to_milligram(self.le.text())
+            elif out == 3:
+                converted_weight = self.gram_to_kilogram(self.le.text())
+        elif inn == 3:
+            if out == 1:
+                converted_weight = self.kilogram_to_milligram(self.le.text())
+            elif out == 2:
+                converted_weight = self.kilogram_to_gram(self.le.text())
+
+        if inn == out:
+            converted_weight = self.le.text()
+
+        self.lb.setText(str(converted_weight))
+        
+    #Миллиграммы в граммы
+    def milligram_to_gram(self, milligram):
+        gram = float(milligram) / 1000
+        return gram
+
+    #Миллиграммы в килограммы
+    def milligram_to_kilogram(self, milligram):
+        kilogram = float(milligram) / 1000000
+        return kilogram
+
+    #Граммы в миллиграммы
+    def gram_to_milligram(self, gram):
+        milligram = float(gram) * 1000
+        return milligram
+
+    #Граммы в килограммы
+    def gram_to_kilogram(self, gram):
+        kilogram = float(gram) / 1000
+        return kilogram
+    
+    #Килограмм в миллиграмм
+    def kilogram_to_milligram(self, kilogram):
+        milligram = float(kilogram) * 1000000
+        return milligram
+    
+    #Килограмм в миллиграмм
+    def kilogram_to_gram(self, kilogram):
+        gram = float(kilogram) * 1000
+        return gram
 
 
 if __name__ == "__main__":
