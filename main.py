@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 import math
 import random
 
@@ -23,6 +23,8 @@ class MyWindow(QtWidgets.QMainWindow):
                 self.length()
             elif self.settings.value("Режимы/Режим") == "weight":
                 self.weight()
+            elif self.settings.value("Режимы/Режим") == "time":
+                self.time()
         else:
             self.calc()
         
@@ -38,6 +40,7 @@ class MyWindow(QtWidgets.QMainWindow):
         calcMenu.addAction(self.tempAction)
         calcMenu.addAction(self.lengthAction)
         calcMenu.addAction(self.weightAction)
+        calcMenu.addAction(self.timeAction)
         
     def _createActions(self):
         self.calcAction = QtWidgets.QAction("Калькулятор", self)
@@ -50,6 +53,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.lengthAction.triggered.connect(self.length)
         self.weightAction = QtWidgets.QAction("Масса", self)
         self.weightAction.triggered.connect(self.weight)
+        self.timeAction = QtWidgets.QAction("Время", self)
+        self.timeAction.triggered.connect(self.time)
         
     def closeEvent(self, event):
         self.settings.beginGroup("Окно")
@@ -59,6 +64,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.settings.beginGroup("Режимы")
         self.settings.setValue("Режим", self.mode)
         self.settings.endGroup()
+
     
     #калькулятор
     def calc(self):
@@ -120,6 +126,9 @@ class MyWindow(QtWidgets.QMainWindow):
         self.le = QtWidgets.QLineEdit()
         self.btnn = QtWidgets.QPushButton("Перевести")
         self.btnn.clicked.connect(self.translate)
+
+        self.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Enter"), self)
+        self.shortcut.activated.connect(self.translate)
 
         self.rb = QtWidgets.QRadioButton("Из двоичной")
         self.rb2 = QtWidgets.QRadioButton("Из восьмеричной")
@@ -303,6 +312,73 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.mode = "weight"
         
+    def time(self):
+        self.setWindowTitle("Время")
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.grid = QtWidgets.QGridLayout()
+        wid = QtWidgets.QWidget(self)
+        self.setCentralWidget(wid)
+
+        self.lb = QtWidgets.QLabel("0")
+        self.le = QtWidgets.QLineEdit()
+        self.btn = QtWidgets.QPushButton("Перевести")
+        self.btn.clicked.connect(self.translate_time)
+
+        self.rb = QtWidgets.QRadioButton("Из миллисекунд")
+        self.rb2 = QtWidgets.QRadioButton("Из секунд")
+        self.rb3 = QtWidgets.QRadioButton("Из минут")
+        self.rb4 = QtWidgets.QRadioButton("Из часов")
+        self.rb5 = QtWidgets.QRadioButton("Из дней")
+        self.rb6 = QtWidgets.QRadioButton("Из недель")
+        self.rb7 = QtWidgets.QRadioButton("Из месяцев")
+        self.rb8 = QtWidgets.QRadioButton("Из лет")
+
+        self.button_group = QtWidgets.QButtonGroup()
+        self.button_group.addButton(self.rb)
+        self.button_group.addButton(self.rb2)
+        self.button_group.addButton(self.rb3)
+        self.button_group.addButton(self.rb4)
+        self.button_group.addButton(self.rb5)
+        self.button_group.addButton(self.rb6)
+        self.button_group.addButton(self.rb7)
+        self.button_group.addButton(self.rb8)
+
+        self.rbb = QtWidgets.QRadioButton("В миллисекунды")
+        self.rbb2 = QtWidgets.QRadioButton("В секунды")
+        self.rbb3 = QtWidgets.QRadioButton("В минуты")
+        self.rbb4 = QtWidgets.QRadioButton("В часы")
+        self.rbb5 = QtWidgets.QRadioButton("В дни")
+        self.rbb6 = QtWidgets.QRadioButton("В недели")
+        self.rbb7 = QtWidgets.QRadioButton("В месяца")
+        self.rbb8 = QtWidgets.QRadioButton("В года")
+
+        self.vbox.addWidget(self.lb)
+        self.vbox.addWidget(self.le)
+
+        self.grid.addWidget(self.rb, 0, 0)
+        self.grid.addWidget(self.rb2, 1, 0)
+        self.grid.addWidget(self.rb3, 2, 0)
+        self.grid.addWidget(self.rb4, 3, 0)
+        self.grid.addWidget(self.rb5, 4, 0)
+        self.grid.addWidget(self.rb6, 5, 0)
+        self.grid.addWidget(self.rb7, 6, 0)
+        self.grid.addWidget(self.rb8, 7, 0)
+
+        self.grid.addWidget(self.rbb, 0, 1)
+        self.grid.addWidget(self.rbb2, 1, 1)
+        self.grid.addWidget(self.rbb3, 2, 1)
+        self.grid.addWidget(self.rbb4, 3, 1)
+        self.grid.addWidget(self.rbb5, 4, 1)
+        self.grid.addWidget(self.rbb6, 5, 1)
+        self.grid.addWidget(self.rbb7, 6, 1)
+        self.grid.addWidget(self.rbb8, 7, 1)
+
+        self.vbox.addLayout(self.grid)
+        self.vbox.addWidget(self.btn)
+        wid.setLayout(self.vbox)
+
+        self.mode = "time"
+
     def add(self):
         res = float(self.le1.text()) + float(self.le2.text())
         self.lb.setText(str(res))
@@ -639,6 +715,407 @@ class MyWindow(QtWidgets.QMainWindow):
     def kilogram_to_gram(self, kilogram):
         gram = float(kilogram) * 1000
         return gram
+
+    def translate_time(self):
+        #Миллисекунды
+        if self.rb.isChecked():
+            inn = 1
+        #Секунды
+        elif self.rb2.isChecked():
+            inn = 2
+        #Минуты
+        elif self.rb3.isChecked():
+            inn = 3
+        #Часы
+        elif self.rb4.isChecked():
+            inn = 4
+        #Дни
+        elif self.rb5.isChecked():
+            inn = 5
+        #Недели
+        elif self.rb6.isChecked():
+            inn = 6
+        #Месяцы
+        elif self.rb7.isChecked():
+            inn = 7
+        #Года
+        elif self.rb8.isChecked():
+            inn = 8
+
+
+        #Миллисекунды
+        if self.rbb.isChecked():
+            out = 1
+        #секунды
+        elif self.rbb2.isChecked():
+            out = 2
+        #Минуты
+        elif self.rbb3.isChecked():
+            out = 3
+        #Часы
+        elif self.rbb4.isChecked():
+            out = 4
+        #Дни
+        elif self.rbb5.isChecked():
+            out = 5
+        #Недели
+        elif self.rbb6.isChecked():
+            out = 6
+        #Месяцы
+        elif self.rbb7.isChecked():
+            out = 7
+        elif self.rbb8.isChecked():
+            out = 8
+
+        if inn == 1:
+            if out == 2:
+                converted_time = self.milliseconds_to_seconds(self.le.text())
+            elif out == 3:
+                converted_time = self.milliseconds_to_minutes(self.le.text())
+            elif out == 4:
+                converted_time = self.milliseconds_to_hours(self.le.text())
+            elif out == 5:
+                converted_time = self.milliseconds_to_days(self.le.text())
+            elif out == 6:
+                converted_time = self.milliseconds_to_weeks(self.le.text())
+            elif out == 7:
+                converted_time = self.milliseconds_to_months(self.le.text())
+            elif out == 8:
+                converted_time = self.milliseconds_to_years(self.le.text())
+        elif inn == 2:
+            if out == 1:
+                converted_time = self.seconds_to_milliseconds(self.le.text())
+            elif out == 3:
+                converted_time = self.seconds_to_minutes(self.le.text())
+            elif out == 4:
+                converted_time = self.seconds_to_hours(self.le.text())
+            elif out == 5:
+                converted_time = self.seconds_to_days(self.le.text())
+            elif out == 6:
+                converted_time = self.seconds_to_weeks(self.le.text())
+            elif out == 7:
+                converted_time = self.seconds_to_months(self.le.text())
+            elif out == 8:
+                converted_time = self.seconds_to_years(self.le.text())
+        elif inn == 3:
+            if out == 1:
+                converted_time = self.minutes_to_milliseconds(self.le.text())
+            elif out == 2:
+                converted_time = self.minutes_to_seconds(self.le.text())
+            elif out == 4:
+                converted_time = self.minutes_to_hours(self.le.text())
+            elif out == 5:
+                converted_time = self.minutes_to_days(self.le.text())
+            elif out == 6:
+                converted_time = self.minutes_to_weeks(self.le.text())
+            elif out == 7:
+                converted_time = self.minutes_to_months(self.le.text())
+            elif out == 8:
+                converted_time = self.minutes_to_years(self.le.text())
+        elif inn == 4:
+            if out == 1:
+                converted_time = self.hours_to_milliseconds(self.le.text())
+            elif out == 2:
+                converted_time = self.hours_to_seconds(self.le.text())
+            elif out == 3:
+                converted_time = self.hours_to_minutes(self.le.text())
+            elif out == 5:
+                converted_time = self.seconds_to_days(self.le.text())
+            elif out == 6:
+                converted_time = self.seconds_to_weeks(self.le.text())
+            elif out == 7:
+                converted_time = self.seconds_to_months(self.le.text())
+            elif out == 8:
+                converted_time = self.seconds_to_years(self.le.text())
+        elif inn == 5:
+            if out == 1:
+                converted_time = self.days_to_milliseconds(self.le.text())
+            elif out == 2:
+                converted_time = self.days_to_seconds(self.le.text())
+            elif out == 3:
+                converted_time = self.days_to_minutes(self.le.text())
+            elif out == 4:
+                converted_time = self.days_to_hours(self.le.text())
+            elif out == 6:
+                converted_time = self.days_to_weeks(self.le.text())
+            elif out == 7:
+                converted_time = self.days_to_months(self.le.text())
+            elif out == 8:
+                converted_time = self.days_to_years(self.le.text())
+        elif inn == 6:
+            if out == 1:
+                converted_time = self.weeks_to_milliseconds(self.le.text())
+            elif out == 2:
+                converted_time = self.weeks_to_seconds(self.le.text())
+            elif out == 3:
+                converted_time = self.weeks_to_minutes(self.le.text())
+            elif out == 4:
+                converted_time = self.weeks_to_hours(self.le.text())
+            elif out == 5:
+                converted_time = self.weeks_to_days(self.le.text())
+            elif out == 7:
+                converted_time = self.weeks_to_months(self.le.text())
+            elif out == 8:
+                converted_time = self.weeks_to_years(self.le.text())
+        elif inn == 7:
+            if out == 1:
+                converted_time = self.months_to_milliseconds(self.le.text())
+            elif out == 2:
+                converted_time = self.months_to_seconds(self.le.text())
+            elif out == 3:
+                converted_time = self.months_to_minutes(self.le.text())
+            elif out == 4:
+                converted_time = self.months_to_hours(self.le.text())
+            elif out == 5:
+                converted_time = self.months_to_days(self.le.text())
+            elif out == 6:
+                converted_time = self.months_to_weeks(self.le.text())
+            elif out == 8:
+                converted_time = self.months_to_years(self.le.text())
+        elif inn == 8:
+            if out == 1:
+                converted_time = self.years_to_milliseconds(self.le.text())
+            elif out == 2:
+                converted_time = self.years_to_seconds(self.le.text())
+            elif out == 3:
+                converted_time = self.years_to_minutes(self.le.text())
+            elif out == 4:
+                converted_time = self.years_to_hours(self.le.text())
+            elif out == 5:
+                converted_time = self.years_to_days(self.le.text())
+            elif out == 6:
+                converted_time = self.years_to_weeks(self.le.text())
+            elif out == 7:
+                converted_time = self.years_to_months(self.le.text())
+
+        if inn == out:
+            converted_time = self.le.text()
+
+        self.lb.setText(str(converted_time))
+
+    def milliseconds_to_seconds(self, milliseconds):
+        seconds = float(milliseconds) / 1000
+        return seconds
+
+    def milliseconds_to_minutes(self, milliseconds):
+        minutes = float(milliseconds) / 60000
+        return minutes
+
+    def milliseconds_to_hours(self, milliseconds):
+        hours = float(milliseconds) / 3600000
+        return hours
+
+    def milliseconds_to_days(self, milliseconds):
+        days = float(milliseconds) / 86400000
+        return days
+
+    def milliseconds_to_weeks(self, milliseconds):
+        weeks = float(milliseconds) / 604800000
+        return weeks
+
+    def milliseconds_to_months(self, milliseconds):
+        months = float(milliseconds) / 2592000000
+        return months
+
+    def milliseconds_to_years(self, milliseconds):
+        years = float(milliseconds) / 31536000000
+        return years
+
+    def seconds_to_milliseconds(self, seconds):
+        milliseconds = float(seconds) * 1000
+        return milliseconds 
+
+    def seconds_to_minutes(self, seconds):
+        minutes = float(seconds) / 60
+        return minutes
+
+    def seconds_to_hours(self, seconds):
+        hours = float(seconds) / 3600
+        return hours
+    
+    def seconds_to_days(self, seconds):
+        days = float(seconds) / 86400
+        return days
+
+    def seconds_to_weeks(self, seconds):
+        weeks = float(seconds) / 604800
+        return weeks
+    
+    def seconds_to_months(self, seconds):
+        months = float(seconds) / 18144000
+        return months
+
+    def seconds_to_years(self, seconds):
+        years = float(seconds) / 217728000
+        return years
+
+    def minutes_to_milliseconds(self, minutes):
+        milliseconds = float(minutes) * 6000
+        return milliseconds
+
+    def minutes_to_seconds(self, minutes):
+        seconds = float(minutes) * 60
+        return seconds
+
+    def minutes_to_hours(self, minutes):
+        hours = float(minutes) / 60
+        return hours
+    
+    def minutes_to_days(self, minutes):
+        days = float(minutes) / 1440
+        return days
+
+    def minutes_to_weeks(self, minutes):
+        weeks = float(minutes) / 10080
+        return weeks
+    
+    def minutes_to_months(self, minutes):
+        months = float(minutes) / 302400
+        return months
+    
+    def minutes_to_years(self, minutes):
+        years = float(minutes) / 3628800
+        return years
+
+    def hours_to_milliseconds(self, hours):
+        milliseconds = float(hours) * 3600000
+        return milliseconds
+
+    def hours_to_seconds(self, hours):
+        seconds = float(hours) * 3600
+        return seconds
+
+    def hours_to_minutes(self, hours):
+        minutes = float(hours) * 60
+        return minutes
+
+    def hours_to_days(self, hours):
+        days = float(hours) / 24
+        return days
+
+    def hours_to_weeks(self, hours):
+        weeks = float(hours) / 168
+        return weeks
+
+    def hours_to_months(self, hours):
+        months = float(hours) / 5040
+        return months
+
+    def hours_to_years(self, hours):
+        years = float(hours) / 60480
+        return years
+
+    def days_to_milliseconds(self, days):
+        milliseconds = float(days) * 864000000
+        return milliseconds
+    
+    def days_to_seconds(self, days):
+        seconds = float(days) * 86400
+        return seconds
+
+    def days_to_minutes(self, days):
+        minutes = float(days) * 1440
+        return minutes
+
+    def days_to_hours(self, days):
+        hours = float(days) * 24
+        return hours
+
+    def days_to_weeks(self, days):
+        weeks = float(days) / 7
+        return weeks
+
+    def days_to_months(self, days):
+        months = float(days) / 30
+        return months
+
+    def days_to_years(self, days):
+        years = float(days) / 365
+        return years
+    
+    def weeks_to_milliseconds(self, weeks):
+        milliseconds = float(weeks) * 604800000
+        return milliseconds
+    
+    def weeks_to_seconds(self, weeks):
+        seconds = float(weeks) * 604800
+        return seconds
+
+    def weeks_to_minutes(self, weeks):
+        minutes = float(weeks) * 10080
+        return minutes
+    
+    def weeks_to_hours(self, weeks):
+        hours = float(weeks) * 168
+        return hours
+
+    def weeks_to_days(self, weeks):
+        days = float(weeks) * 7
+        return days
+
+    def weeks_to_months(self, weeks):
+        months = float(weeks) / 30
+        return months
+
+    def weeks_to_years(self, weeks):
+        years = float(weeks) / 52.25
+        return years
+
+    def months_to_milliseconds(self, months):
+        milliseconds = float(months) * 2592000000
+        return milliseconds
+
+    def months_to_seconds(self, months):
+        seconds = float(months) * 18144000
+        return seconds
+
+    def months_to_minutes(self, months):
+        minutes = float(months) * 302400
+        return minutes
+
+    def months_to_hours(self, months):
+        hours = float(months) * 5040
+        return hours
+
+    def months_to_days(self, months):
+        days = float(months) * 30
+        return days
+
+    def months_to_weeks(self, months):
+        weeks = float(months) * 4
+        return weeks
+
+    def months_to_years(self, months):
+        years = float(months) / 12
+        return years
+
+    def years_to_milliseconds(self, years):
+        milliseconds = float(years) * 31536000000
+        return milliseconds
+
+    def years_to_seconds(self, years):
+        seconds = float(years) * 217728000
+        return seconds
+
+    def years_to_minutes(self, years):
+        minutes = float(years) * 3628800
+        return minutes
+
+    def years_to_hours(self, years):
+        hours = float(years) * 60480
+        return hours
+
+    def years_to_days(self, years):
+        days = float(years) * 365
+        return days
+
+    def years_to_weeks(self, years):
+        weeks = float(years) * 52.25
+        return weeks
+    
+    def years_to_months(self, years):
+        months = float(years) * 12
+        return months
 
 
 if __name__ == "__main__":
