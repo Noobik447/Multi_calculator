@@ -126,6 +126,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.le = QtWidgets.QLineEdit()
         self.btnn = QtWidgets.QPushButton("Перевести")
         self.btnn.clicked.connect(self.translate)
+        self.btnn.setShortcut(QtGui.QKeySequence("Return"))
 
         self.shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Enter"), self)
         self.shortcut.activated.connect(self.translate)
@@ -193,6 +194,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.le = QtWidgets.QLineEdit()
         self.btn = QtWidgets.QPushButton("Перевести")
         self.btn.clicked.connect(self.translate_temp)
+        self.btn.setShortcut(QtGui.QKeySequence("Return"))
 
         self.rb = QtWidgets.QRadioButton("Из Цельсия")
         self.rb2 = QtWidgets.QRadioButton("Из Фарангейта")
@@ -234,6 +236,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.le = QtWidgets.QLineEdit()
         self.btn = QtWidgets.QPushButton("Перевести")
         self.btn.clicked.connect(self.translate_length)
+        self.btn.setShortcut(QtGui.QKeySequence("Return"))
 
         self.rb = QtWidgets.QRadioButton("Из миллиметров")
         self.rb2 = QtWidgets.QRadioButton("Из сантиметров")
@@ -281,6 +284,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.le = QtWidgets.QLineEdit()
         self.btn = QtWidgets.QPushButton("Перевести")
         self.btn.clicked.connect(self.translate_weight)
+        self.btn.setShortcut(QtGui.QKeySequence("Return"))
 
         self.rb = QtWidgets.QRadioButton("Из миллиграмм")
         self.rb2 = QtWidgets.QRadioButton("Из грамм")
@@ -323,6 +327,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.le = QtWidgets.QLineEdit()
         self.btn = QtWidgets.QPushButton("Перевести")
         self.btn.clicked.connect(self.translate_time)
+        self.btn.setShortcut(QtGui.QKeySequence("Return"))
 
         self.rb = QtWidgets.QRadioButton("Из миллисекунд")
         self.rb2 = QtWidgets.QRadioButton("Из секунд")
