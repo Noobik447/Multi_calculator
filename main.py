@@ -30,6 +30,8 @@ class MyWindow(QtWidgets.QMainWindow):
                 self.time()
             elif self.settings.value("Режимы/Режим") == "data":
                 self.data()
+            elif self.settings.value("Режимы/Режим") == "frequency":
+                self.frequency()
         else:
             self.calc()
         if self.settings.contains("Память/Память"):
@@ -51,6 +53,7 @@ class MyWindow(QtWidgets.QMainWindow):
         calcMenu.addAction(self.weightAction)
         calcMenu.addAction(self.timeAction)
         calcMenu.addAction(self.dataAction)
+        calcMenu.addAction(self.frequencyAction)
         memoryMenu.addAction(self.memory_saveAction)
         memoryMenu.addAction(self.memory_readAction)
         memoryMenu.addAction(self.memory_clearAction)
@@ -85,6 +88,8 @@ class MyWindow(QtWidgets.QMainWindow):
         self.memory_subAction.triggered.connect(self.memory_sub)
         self.copyAction = QtWidgets.QAction("Скопировать результат", self)
         self.copyAction.triggered.connect(self.copy_result)
+        self.frequencyAction = QtWidgets.QAction("Частота", self)
+        self.frequencyAction.triggered.connect(self.frequency)
 
     def closeEvent(self, event):
         self.settings.beginGroup("Окно")
@@ -217,6 +222,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.mode = "code"
     
+    #перевод температуры
     def temp(self):
         self.setWindowTitle("Температура")
         self.vbox = QtWidgets.QVBoxLayout()
@@ -259,6 +265,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.mode = "temp"
 
+    #перевод длины
     def length(self):
         self.setWindowTitle("Длина")
         self.vbox = QtWidgets.QVBoxLayout()
@@ -307,6 +314,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.mode = "length"
 
+    #перевод массы
     def weight(self):
         self.setWindowTitle("Масса")
         self.vbox = QtWidgets.QVBoxLayout()
@@ -350,6 +358,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.mode = "weight"
         
+    #переводы времени
     def time(self):
         self.setWindowTitle("Время")
         self.vbox = QtWidgets.QVBoxLayout()
@@ -418,6 +427,7 @@ class MyWindow(QtWidgets.QMainWindow):
 
         self.mode = "time"
 
+    #перевод размера данных
     def data(self):
         self.setWindowTitle("Данные")
         self.vbox = QtWidgets.QVBoxLayout()
@@ -478,6 +488,225 @@ class MyWindow(QtWidgets.QMainWindow):
         wid.setLayout(self.vbox)
 
         self.mode = "data"
+
+    #Перевод частот
+    def frequency(self):
+        self.setWindowTitle("Частота")
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.grid = QtWidgets.QGridLayout()
+        wid = QtWidgets.QWidget(self)
+        self.setCentralWidget(wid)
+
+        self.lb = QtWidgets.QLabel("0")
+        self.le = QtWidgets.QLineEdit()
+        self.btn = QtWidgets.QPushButton("Перевести")
+        self.btn.clicked.connect(self.translate_frequency)
+        self.btn.setShortcut(QtGui.QKeySequence("Return"))
+
+        self.rb = QtWidgets.QRadioButton("Из герц")
+        self.rb2 = QtWidgets.QRadioButton("Из килогерц")
+        self.rb3 = QtWidgets.QRadioButton("Из мегагерц")
+        self.rb4 = QtWidgets.QRadioButton("Из гигагерц")
+        self.rb5 = QtWidgets.QRadioButton("Из терагерц")
+
+        self.button_group = QtWidgets.QButtonGroup()
+        self.button_group.addButton(self.rb)
+        self.button_group.addButton(self.rb2)
+        self.button_group.addButton(self.rb3)
+        self.button_group.addButton(self.rb4)
+        self.button_group.addButton(self.rb5)
+
+        self.rbb = QtWidgets.QRadioButton("В герцы")
+        self.rbb2 = QtWidgets.QRadioButton("В килогерцы")
+        self.rbb3 = QtWidgets.QRadioButton("В мегагерцы")
+        self.rbb4 = QtWidgets.QRadioButton("В гигагерцы")
+        self.rbb5 = QtWidgets.QRadioButton("В терагерцы")
+
+        self.grid.addWidget(self.rb, 0, 0)
+        self.grid.addWidget(self.rb2, 1, 0)
+        self.grid.addWidget(self.rb3, 2, 0)
+        self.grid.addWidget(self.rb4, 3, 0)
+        self.grid.addWidget(self.rb5, 4, 0)
+
+        self.grid.addWidget(self.rbb, 0, 1)
+        self.grid.addWidget(self.rbb2, 1, 1)
+        self.grid.addWidget(self.rbb3, 2, 1)
+        self.grid.addWidget(self.rbb4, 3, 1)
+        self.grid.addWidget(self.rbb5, 4, 1)
+
+
+        self.vbox.addWidget(self.lb)
+        self.vbox.addWidget(self.le)
+
+        self.vbox.addLayout(self.grid)
+        self.vbox.addWidget(self.btn)
+        wid.setLayout(self.vbox)
+
+        self.mode = "frequency"
+
+    def translate_frequency(self):
+        #Герц
+        if self.rb.isChecked():
+            inn = 1
+        #Килогерц
+        elif self.rb2.isChecked():
+            inn = 2
+        #Мегагерц
+        elif self.rb3.isChecked():
+            inn = 3
+        #Гигагерц
+        elif self.rb4.isChecked():
+            inn = 4
+        #Терагерц    
+        elif self.rb5.isChecked():
+            inn = 5
+
+        #Герц
+        if self.rbb.isChecked():
+            out = 1
+        #Килогерц
+        elif self.rbb2.isChecked():
+            out = 2
+        #Мегагерц
+        elif self.rbb3.isChecked():
+            out = 3
+        #Гигагерц
+        elif self.rbb4.isChecked():
+            out = 4
+        #Терагерц
+        elif self.rbb5.isChecked():
+            out = 5
+
+        if inn == 1:
+            if out == 2:
+                converted_frequency = self.hertz_to_kilohertz(self.le.text())
+            elif out == 3:
+                converted_frequency = self.hertz_to_megahertz(self.le.text())
+            elif out == 4:
+                converted_frequency = self.hertz_to_gigahertz(self.le.text())
+            elif out == 5:
+                converted_frequency = self.hertz_to_terahertz(self.le.text())
+        elif inn == 2:
+            if out == 1:
+                converted_frequency = self.kilohertz_to_hertz(self.le.text())
+            elif out == 3:
+                converted_frequency = self.kilohertz_to_megahertz(self.le.text())
+            elif out == 4:
+                converted_frequency = self.kilohertz_to_gigahertz(self.le.text())
+            elif out == 5:
+                converted_frequency = self.kilohertz_to_terahertz(self.le.text())
+        elif inn == 3:
+            if out == 1:
+                converted_frequency = self.megahertz_to_hertz(self.le.text())
+            elif out == 2:
+                converted_frequency = self.megahertz_to_kilohertz(self.le.text())
+            elif out == 4:
+                converted_frequency = self.megahertz_to_gigahertz(self.le.text())
+            elif out == 5:
+                converted_frequency = self.megahertz_to_terahertz(self.le.text())
+        elif inn == 4:
+            if out == 1:
+                converted_frequency = self.gigahertz_to_hertz(self.le.text())
+            elif out == 2:
+                converted_frequency = self.gigahertz_to_kilohertz(self.le.text())
+            elif out == 3:
+                converted_frequency = self.gigahertz_to_megahertz(self.le.text())
+            elif out == 5:
+                converted_frequency = self.gigahertz_to_terahertz(self.le.text())
+        elif inn == 5:
+            if out == 1:
+                converted_frequency = self.terahertz_to_hertz(self.le.text())
+            elif out == 2:
+                converted_frequency = self.terahertz_to_kilohertz(self.le.text())
+            elif out == 3:
+                converted_frequency = self.terahertz_to_megahertz(self.le.text())
+            elif out == 4:
+                converted_frequency = self.terahertz_to_gigahertz(self.le.text())
+
+        if inn == out:
+            converted_frequency = self.le.text()
+
+        self.lb.setText(str(converted_frequency))
+
+    def hertz_to_kilohertz(self, hertz):
+        kilohertz = float(hertz) / 1000
+        return kilohertz
+    
+    def hertz_to_megahertz(self, hertz):
+        megahertz = float(hertz) / 1000000
+        return megahertz
+
+    def hertz_to_gigahertz(self, hertz):
+        gigahertz = float(hertz) / 1000000000
+        return gigahertz
+
+    def hertz_to_terahertz(self, hertz):
+        terahertz = float(hertz) / 1000000000000
+        return terahertz
+
+    def kilohertz_to_hertz(self, kilohertz):
+        hertz = float(kilohertz) * 1000
+        return hertz
+
+    def kilohertz_to_megahertz(self, kilohertz):
+        megahertz = float(kilohertz) / 1000
+        return megahertz
+    
+    def kilohertz_to_gigahertz(self, kilohertz):
+        gigahertz = float(kilohertz) / 1000000
+        return gigahertz
+
+    def kilohertz_to_terahertz(self, kilohertz):
+        terahertz = float(kilohertz) / 1000000000
+        return terahertz
+
+    def megahertz_to_hertz(self, megahertz):
+        hertz = float(megahertz) * 1000000
+        return hertz
+
+    def megahertz_to_kilohertz(self, megahertz):
+        kilohertz = float(megahertz) * 1000
+        return kilohertz
+
+    def megahertz_to_gigahertz(self, megahertz):
+        gigahertz = float(megahertz) / 1000
+        return gigahertz
+
+    def megahertz_to_terahertz(self, megahertz):
+        terahertz = float(megahertz) / 1000000
+        return terahertz
+
+    def gigahertz_to_hertz(self, gigahertz):
+        hertz = float(gigahertz) * 1000000000
+        return hertz
+
+    def gigahertz_to_kilohertz(self, gigahertz):
+        kilohertz = float(gigahertz) * 1000000
+        return kilohertz
+
+    def gigahertz_to_megahertz(self, gigahertz):
+        megahertz = float(gigahertz) * 1000
+        return megahertz
+
+    def gigahertz_to_terahertz(self, gigahertz):
+        terahertz = float(gigahertz) / 1000
+        return terahertz
+
+    def terahertz_to_hertz(self, terahertz):
+        hertz = float(terahertz) * 1000000000000
+        return hertz
+
+    def terahertz_to_kilohertz(self, terahertz):
+        kilohertz = float(terahertz) * 1000000000
+        return kilohertz
+
+    def terahertz_to_megahertz(self, terahertz):
+        megahertz = float(terahertz) * 1000000
+        return megahertz
+    
+    def terahertz_to_gigahertz(self, terahertz):
+        gigahertz = float(terahertz) * 1000
+        return gigahertz
 
     def add(self):
         res = float(self.le1.text()) + float(self.le2.text())
